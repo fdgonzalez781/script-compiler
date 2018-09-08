@@ -7,7 +7,6 @@ import qualified Data.Text as Text
 import System.Directory
 import Data.List
 import Data.Maybe
-import System.Eval.Haskell
 
 -- lamdba f. lambda x. f x <=> \f -> \x -> f x
 -- lambda f. lamdba x. f x is equivalent to a value of type (a -> b) -> a -> a
@@ -46,6 +45,7 @@ data Term = Call VarDecl
 data Statement = LambdaTerm Term
                | Definition String Term
                deriving (Eq, Show)
+
 
 type Rule = [Token] -> Bool
 
@@ -96,6 +96,20 @@ breakAfter p xs =
     [] -> (st, [])
     _ -> (st ++ ([head end]), tail end)
 
+findScope :: Int -> [Token] -> [(Int, Token)]
+findScope s ((OParen, p):xs) = (s+1, (OParen, p)) : findScope (s+1) xs
+findScope s ((CParen, p):xs) = (s, (CParen, p)) : findScope (s-1) xs
+findScope s (x:xs) = (s, x) : findScope s xs
+findScope _ [] = []
+
+breakScopeSt :: [(Int, Token)] -> ([Token], [Token])
+breakScopeSt l@((0, k):xs) = (map snd l, [])
+breakScopeSt l@((n, k):xs) = (\(a, b) -> (map snd a, map snd b)) $ breakAfter (\(i, (token, _)) -> n == i && token == CParen) l
+breakScopeSt [] = ([], [])
+
+breakScope :: [Token] -> ([Token], [Token])
+breakScope = breakScopeSt . (findScope 0)
+
 runParser :: [Token] -> Program
 runParser tokens =
   let (st, rem) = breakAfter (\token -> fst token == Endl) tokens
@@ -106,15 +120,17 @@ runParser tokens =
 matchTerm :: [Token] -> Term
 matchTerm ((Lambda, _):(Ident, x):(Dot, _):xs) = Abstr (Var x) (matchTerm xs)
 matchTerm ((OParen, x):xs) =
-  let (st, rem) = breakAfter (\(token, _) -> token == CParen) xs
+  let (st, rem) = breakScope ((OParen, x):xs)
   in case rem of
     [] -> matchTerm (init xs)
-    ((OParen, _):ys) -> Apply (matchTerm (init st)) (matchTerm (init rem))
+    ((OParen, _):ys) -> Apply (matchTerm (tail $ init st)) (matchTerm (tail $ init rem))
     ((Ident, z):[]) -> Apply (matchTerm (init st)) (Call (Var z))
 matchTerm ((Ident, x):y:xs) = case y of
   (Lambda, _) -> Apply (Call (Var x)) (matchTerm (y:xs))
-  (Ident, _) -> Apply (Call (Var x)) (matchTerm (y:xs))
-  (OParen, _) -> Apply (Call (Var x)) (matchTerm (y:(takeWhile (\(token, _) -> token /= CParen) xs)))
+  (Ident, z) -> case xs of
+    ((Endl, _):ys) -> Apply (Call (Var x)) (Call (Var z))
+    _ -> Apply (Apply (Call (Var x)) (Call (Var z))) (matchTerm xs)
+  (OParen, _) -> Apply (Call (Var x)) (matchTerm (fst $ breakScope (y:xs)))
   _ -> Call (Var x)
 matchTerm ((Ident, x):[]) = Call (Var x)
 
@@ -133,6 +149,11 @@ genCodeStmt (LambdaTerm term) = genCodeTerm term
 genCodeTerm :: Term -> String
 genCodeTerm (Call (Var name)) = name
 genCodeTerm (Abstr (Var name) term) = "\\" ++ name ++ " -> " ++ genCodeTerm term
+genCodeTerm (Apply (Call (Var x)) (Call (Var y))) = x ++ " " ++ y
+genCodeTerm (Apply (Call (Var x)) t@(Apply t1 t2)) = x ++ " (" ++ genCodeTerm t ++ ")"
 genCodeTerm (Apply (Call (Var x)) term) = x ++ " " ++ genCodeTerm term
 genCodeTerm (Apply term (Call (Var x))) = "(" ++ genCodeTerm term ++ ") " ++ x
 genCodeTerm (Apply t1 t2) = "(" ++ genCodeTerm t1 ++ ") (" ++ genCodeTerm t2 ++ ")"
+
+viewFile :: IO String
+viewFile = getCurrentDirectory >>= \dir -> readFile $ dir ++ "/src/script.txt"

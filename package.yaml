@@ -25,7 +25,6 @@ dependencies:
 - array
 - directory
 - text
-- plugins
 
 library:
   source-dirs: src
@@ -44,7 +43,6 @@ executables:
     - array
     - directory
     - text
-    - plugins
 
 tests:
   script-compiler-test:
