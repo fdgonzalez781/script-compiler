@@ -65,7 +65,7 @@ The lexer translates the input string to tokens, which comprise the terminals of
 The parser then translates those tokens to an abstract syntax tree based on rules of the grammar. The intended behavior of the grammar rules are as specified above.
 The code generator then traverses the syntax tree provided by the parser and generates valid Haskell for each statement and expression.
 
-One interesting note about this compiler is that each of the tree stages of the compiler are each a single function, each comprised of several smaller functions, and the compiler is simply a composition of those three functions. This structure allowed for incredibly simple and flexible testing. For example, if I needed to test how an expression was being parsed, I could create a function `test = runParser . runLexer` and pass a string to that function, which would immediately give me the generated syntax tree.
+One interesting note about this compiler is that each of the three stages of the compiler are each a single function, each comprised of several smaller functions, and the compiler is simply a composition of those three functions. This structure allowed for incredibly simple and flexible testing. For example, if I needed to test how an expression was being parsed, I could create a function `test = runParser . runLexer` and pass a string to that function, which would immediately give me the generated syntax tree.
 
 ## Testing
 
