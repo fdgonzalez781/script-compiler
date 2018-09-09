@@ -128,7 +128,8 @@ matchTerm ((OParen, x):xs) =
 matchTerm ((Ident, x):y:xs) = case y of
   (Lambda, _) -> Apply (Call (Var x)) (matchTerm (y:xs))
   (Ident, z) -> case xs of
-    ((Endl, _):ys) -> Apply (Call (Var x)) (Call (Var z))
+    ((Endl, _):_) -> Apply (Call (Var x)) (Call (Var z))
+    [] -> Apply (Call (Var x)) (Call (Var z))
     _ -> Apply (Apply (Call (Var x)) (Call (Var z))) (matchTerm xs)
   (OParen, _) -> Apply (Call (Var x)) (matchTerm (fst $ breakScope (y:xs)))
   _ -> Call (Var x)
@@ -152,7 +153,8 @@ genCodeTerm (Abstr (Var name) term) = "\\" ++ name ++ " -> " ++ genCodeTerm term
 genCodeTerm (Apply (Call (Var x)) (Call (Var y))) = x ++ " " ++ y
 genCodeTerm (Apply (Call (Var x)) t@(Apply t1 t2)) = x ++ " (" ++ genCodeTerm t ++ ")"
 genCodeTerm (Apply (Call (Var x)) term) = x ++ " " ++ genCodeTerm term
-genCodeTerm (Apply term (Call (Var x))) = "(" ++ genCodeTerm term ++ ") " ++ x
+genCodeTerm (Apply term (Call (Var x))) = "(" ++ genCodeTerm term ++ ") "
+  ++ x
 genCodeTerm (Apply t1 t2) = "(" ++ genCodeTerm t1 ++ ") (" ++ genCodeTerm t2 ++ ")"
 
 viewFile :: IO String

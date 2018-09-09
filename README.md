@@ -1,6 +1,6 @@
 # script-compiler
 
-A Haskell compiler (interpreter?) for the untyped lambda calculus.
+A Haskell compiler for the untyped lambda calculus.
 
 ## Syntax
 
