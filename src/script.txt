@@ -1,6 +1,20 @@
-identity := lambda x. x;
-apply := lambda f. lambda x. f x;
-true := lambda a. lambda b. a;
-false := lambda a. lambda b. b;
-val := identity true;
-fix := lambda f. (lambda x. f (x x)) (lambda x. f (x x));
+i := lambda x. x;
+k := lambda x. lambda y. x;
+s := lambda x. lambda y. lambda z. x z (y z);
+
+f := i i;
+g := s k k;
+
+zero := lambda f. lambda x. x;
+one := lambda f. lambda x. f x;
+
+succ := lambda n. lambda f. lambda x. f (n f x);
+
+plus := lambda m. lambda n. lambda f. lambda x. m f (n f x);
+times := lambda m. lambda n. lambda f. lambda x. m (n f) x;
+pow := lambda m. lambda n. lambda f. lambda x. (n m) f x;
+true := lambda x. lambda y. x;
+false := lambda x. lambda y. y;
+ifElse := lambda b. lambda t. lambda f. b t f;
+and := lambda p. lambda q. ifElse p q false;
+or := lambda p. lambda q. ifElse p true q;

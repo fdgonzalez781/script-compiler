@@ -1,0 +1,16 @@
+i = \x -> x
+k = \x -> \y -> x
+s = \x -> \y -> \z -> x z (y z)
+f = i i
+g = s k k
+zero = \f -> \x -> x
+one = \f -> \x -> f x
+succ = \n -> \f -> \x -> f (n f x)
+plus = \m -> \n -> \f -> \x -> m f (n f x)
+times = \m -> \n -> \f -> \x -> m (n f) x
+pow = \m -> \n -> \f -> \x -> n m f x
+true = \x -> \y -> x
+false = \x -> \y -> y
+ifElse = \b -> \t -> \f -> b t f
+and = \p -> \q -> ifElse p q false
+or = \p -> \q -> ifElse p true q

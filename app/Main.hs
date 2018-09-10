@@ -23,3 +23,4 @@ testCompilation :: IO ()
 testCompilation = do
   file <- readFileCurrentDir "src/script.txt"
   writeFileCurrentDir "src/script.hs" (compile file)
+
