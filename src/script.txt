@@ -13,8 +13,10 @@ succ := lambda n. lambda f. lambda x. f (n f x);
 plus := lambda m. lambda n. lambda f. lambda x. m f (n f x);
 times := lambda m. lambda n. lambda f. lambda x. m (n f) x;
 pow := lambda m. lambda n. lambda f. lambda x. (n m) f x;
-true := lambda x. lambda y. x;
-false := lambda x. lambda y. y;
+bt := lambda x. lambda y. x;
+bf := lambda x. lambda y. y;
 ifElse := lambda b. lambda t. lambda f. b t f;
-and := lambda p. lambda q. ifElse p q false;
-or := lambda p. lambda q. ifElse p true q;
+and := lambda p. lambda q. ifElse p q bf;
+or := lambda p. lambda q. ifElse p bt q;
+
+y := lambda f. (lambda x. f (x x)) (lambda x. f (x x));

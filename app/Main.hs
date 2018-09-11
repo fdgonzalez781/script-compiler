@@ -5,6 +5,7 @@ import Control.Monad
 
 import Lib
 import Compiler
+import JSInterface
 
 main :: IO ()
 main = do
@@ -19,8 +20,13 @@ readFileCurrentDir str = getCurrentDirectory >>= \dir -> readFile $ dir ++ "/" +
 writeFileCurrentDir :: String -> String -> IO ()
 writeFileCurrentDir file contents = getCurrentDirectory >>= \dir -> writeFile (dir ++ "/" ++ file) contents
 
-testCompilation :: IO ()
-testCompilation = do
+testCompile :: IO ()
+testCompile = do
   file <- readFileCurrentDir "src/script.txt"
   writeFileCurrentDir "src/script.hs" (compile file)
+
+testCompileJS :: IO ()
+testCompileJS = do
+  file <- readFileCurrentDir "src/script.txt"
+  writeFileCurrentDir "src/script.js" (compileJS file)
 

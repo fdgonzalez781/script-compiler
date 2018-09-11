@@ -1,4 +1,4 @@
-module Compiler (compile) where
+module Compiler (compile, compileSyntax, Program, Statement(..), Term(..), VarDecl(..)) where
 
 import Control.Monad
 import Text.Regex.PCRE
@@ -90,6 +90,12 @@ tokenTypes = [
 
 compile :: String -> String
 compile = genCode . runParser . runLexer
+
+-- In order to support compilation to other languages, I've added a function that returns
+-- the generated syntax tree, rather than a string of Haskell code.
+
+compileSyntax :: String -> Program
+compileSyntax = runParser . runLexer
 
 -- with is a utility function, which I have defined here just for simplicity (see tokenizeFirst).
 
