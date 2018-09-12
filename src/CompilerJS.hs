@@ -1,4 +1,4 @@
-module JSInterface (compileJS) where
+module CompilerJS (compile) where
 
 import Compiler (compileSyntax, Program, Statement(..), Term(..), VarDecl(..))
 import Data.List
@@ -7,11 +7,8 @@ import Data.List
 -- As a result, we can use the generated syntax tree as an intermediate representation of the language.
 -- This enables us to compile the untyped lambda calculus to any language we choose.
 
-testCompileJS :: String -> IO ()
-testCompileJS str = putStr $ compileJS str
-
-compileJS :: String -> String
-compileJS = genCode . compileSyntax
+compile :: String -> String
+compile = genCode . compileSyntax
 
 genCode :: Program -> String
 genCode (st:stmts) = genCodeStmt st ++ "\n" ++ genCode stmts
