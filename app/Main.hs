@@ -7,6 +7,22 @@ import Lib
 import qualified CompilerHaskell as Haskell
 import qualified CompilerJS as JS
 import qualified CompilerJS2 as JS2
+import qualified Compiler as Cmp
+
+repl :: IO ()
+repl = getLine >>= \input -> unless (input == "quit") $
+  let process = putStr . compileLambda . reduce . Cmp.compileSyntax
+  in process input >> repl
+
+-- Should perform beta reduction on the program until all terms are in beta normal form.
+
+reduce :: Cmp.Program -> Cmp.Program
+reduce prog = undefined
+
+-- Should recompile a lambda program syntax tree back into the source language.
+
+compileLambda :: Cmp.Program -> String
+compileLambda prog = undefined
 
 main :: IO ()
 main = do

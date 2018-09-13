@@ -1,4 +1,4 @@
-module Compiler (compileSyntax, Program, Statement(..), Term(..), VarDecl(..)) where
+module Lexer (TokenType(..), Token(..), runLexer) where
 
 import Control.Monad
 import Text.Regex.PCRE
@@ -41,36 +41,6 @@ import Data.Maybe
 data TokenType = Lambda | Ident | Dot | Defn | OParen | CParen | Endl deriving (Eq, Show)
 type Token = (TokenType, String)
 
--- Likewise, the rules of the grammar can be encoded using algebraic data types,
--- and we get the added benefit of being able to encode the recursive structure of the grammar
--- directly into the types.
-
-data VarDecl = Var String deriving (Eq, Show)
-data Term = Call VarDecl
-          | Abstr VarDecl Term
-          | Apply Term Term
-          deriving (Eq, Show)
-
-{- As the lambda calculus has a very concise grammar, there are only three different kinds of terms.
-
-   In fact, the lambda calculus does not normally have definition statements. I added them to the grammar
-   to allow me to interact with the output code through GHCi.
-
-   Otherwise, lambda terms would be the only valid statements in the language,
-   and all lambda terms would be unbound, making it difficult to interact with the program unless
-   terms were manually bound in the compiler (which is not a design decision I would like to make).
--}
-
-data Statement = LambdaTerm Term
-               | Definition String Term
-               deriving (Eq, Show)
-
--- BNF Rules:
--- term ::= ident | lambda ident '.' term | term term
--- statement ::= term | ident ':=' term
-
-type Program = [Statement]
-
 -- We define a list of pairs of type (TokenType, String), where the second element is the regular expression that corresponds
 -- to the token type in the language. This is so that the parser can match subexpressions of the input string
 -- with valid tokens in the language.
@@ -84,12 +54,6 @@ tokenTypes = [
   (CParen, "\\)"),
   (Endl, "\\;")
              ]
-
--- In order to support compilation to other languages, I've added a function that returns
--- the generated syntax tree, rather than a string of Haskell code.
-
-compileSyntax :: String -> Program
-compileSyntax = runParser . runLexer
 
 -- with is a utility function, which I have defined here just for simplicity (see tokenizeFirst).
 
